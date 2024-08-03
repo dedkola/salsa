@@ -14,98 +14,104 @@ provider "proxmox" {
     pm_api_token_secret = "0a8cc609-9c4e-47d8-959d-e16fb188a70f"
     pm_api_token_id = "root@pam!ct"
 }
-
 resource "proxmox_vm_qemu" "k3s-master" {
-
+  
     target_node = "px"
-    desc = "Ubuntu"
+    desc = "Cloudinit Ubuntu"
     count = 3
-    onboot = true
-    clone = "ss2"
-    agent = 0
+    clone = "ubuntu-cloud"
+    full_clone = true
+    agent = 1
+    vm_state = "stopped"
     os_type = "cloud-init"
-    cores = 1
+    tags="k3s,master,ubuntu"
+    cores = 2
     sockets = 1
     numa = true
     vcpus = 0
     cpu = "host"
     memory = 4096
     name = "k3s-master-0${count.index + 1}"
-    scsihw   = "virtio-scsi-single" 
+    scsihw = "virtio-scsi-pci"
+    bootdisk = "scsi0"
 
-    disks {
+     disks {
+        ide {
+            ide3 {
+                cloudinit {
+                    storage = "local-lvm"
+                }
+            }
+        }
         scsi {
             scsi0 {
                 disk {
-                    backup             = true
-                    cache              = "none"
-                    discard            = true
-                    emulatessd         = true
-                    iothread           = true
-                    mbps_r_burst       = 0.0
-                    mbps_r_concurrent  = 0.0
-                    mbps_wr_burst      = 0.0
-                    mbps_wr_concurrent = 0.0
-                    replicate          = true
-                    size               = 32
-                    storage            = "local-lvm"
-                  
+                    size            = 32
+                    cache           = "writeback"
+                    storage         = "local-lvm"
+                    iothread        = true
+                    discard         = true
                 }
             }
         }
     }
-
-
-    ipconfig0 = "ip=192.168.0.70/24,gw=192.168.0.1"
-
-    ciuser = "ded"
-    nameserver = "2.2.2.2"
+     
+    ciuser = "usr"
+    cipassword = "123"
+    ipconfig0 = "ip=192.168.0.11${count.index + 1}/24,gw=192.168.0.1"
     sshkeys = <<EOF
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDHZlTW1LaL/LBUCumOaPtnh4cuPe72VXJywnPO9PAp3v/kM0X1Hal3/I+bgVd5CbSlKyUylBC9RXHUXx0aZuloI0nsD+JJsPioWPe1k7TBbRXOd/IVWzaQ6hd0rdjs8PMYVRKVsWUs9TLH1Eicnp7tuwBWsbOrAV+3tqsZXrP0oYUWoeIknSy0dXP7UWZ5X96WjtF/zrjR6tb0SemtYn5E+zKPIVPFiHTkw5WD/CeYL/g1/97GFKqfidBqwRAW1Dxy7u6szkC122qERkiIuNlh4XqLJ+wEh/YlBTg+ZukGotBoR6RFjGkATkr4ad509qHOrafSfUaenLSSSvwGFv9haHhvpGe8ycLwwPIABPRWhLbBQ+UWYffjeEoOaSqxTtuxTy8jEvFJXGdZRA2njpNzewM6g/K8N2kmf7SkWCyDBemAa/EWuiiepO8kL5Syidp/VpFDanOQXIs4bCxTKMTjfWLiyLr1xMg1S9n/aSAaRyQcKff47D+RNm7aSwMBUv8= ded@ded
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCjUkRF+68kpg+hMkRsIxfgyHwu6MZeo9ddZ99o5pSYPAcvzMiYkuN7zLIloFEPOLbHTYw9PhVfaHtNtdIWwr2XLvgAzdy3jcdVdBQ9yYaDyNkrXd7c0YyvWQzAWLy8J3E9nG1l9cgTVHdsLw5J5MAbZKERDIriVAytOWscj4SsRwxtcHH1+HqF4XMIa4lmwtTES/2WUVPVBt1Vaf14Gdr5IJOuLpDeW/qQGbTmVgXDJzcEU1oYsmtW2LBdIZo436JlXKEsyyWFZW9i8TtuDCkuhFDKts2AKipQbz4JhOOsELKxbyWUGY2VBWuqEJThKQ5GyNuVd0JXZ2KD2UCaWjiwTsLxecely54NaWULZDT/YOIoXHVbYJomK8f40tvBj4Z7JKZBllniuwBoIBdobMkppcr0/QiM5ipRUSc8s83Km3xJ/0dKM2kkbyza7ofEGR3OsOFpDb/iT1xg9CEOY9McMsJmM51PnyqMX/fqvxZdDZeIZqKNN6wKf/2GuJl6XXM= usr@local 
     EOF
 }
 
-resource "proxmox_vm_qemu" "k3s-worker" {
-
+resource "proxmox_vm_qemu" "k3s-node" {
+  
     target_node = "px"
-    desc = "Ubuntu"
-    count = 4
-    onboot = true
-    clone = "ss2"
-    agent = 0
+    desc = "Cloudinit Ubuntu"
+    count = 3
+    clone = "ubuntu-cloud"
+    full_clone = true
+    agent = 1
+    vm_state = "stopped"
     os_type = "cloud-init"
-    cores = 1
+    tags="k3s,node,ubuntu"
+    cores = 2
     sockets = 1
     numa = true
     vcpus = 0
     cpu = "host"
     memory = 4096
-    name = "k3s-worker-0${count.index + 1}"
-    scsihw   = "virtio-scsi-single" 
-    disks {
+    name = "k3s-node-0${count.index + 1}"
+    scsihw = "virtio-scsi-pci"
+    bootdisk = "scsi0"
+
+     disks {
+        ide {
+            ide3 {
+                cloudinit {
+                    storage = "local-lvm"
+                }
+            }
+        }
         scsi {
             scsi0 {
                 disk {
-                  backup             = true
-                    cache              = "none"
-                    discard            = true
-                    emulatessd         = true
-                    iothread           = true
-                    mbps_r_burst       = 0.0
-                    mbps_r_concurrent  = 0.0
-                    mbps_wr_burst      = 0.0
-                    mbps_wr_concurrent = 0.0
-                    replicate          = true
-                    size               = 32
-                    storage            = "local-lvm"
+                    size            = 32
+                    cache           = "writeback"
+                    storage         = "local-lvm"
+                    iothread        = true
+                    discard         = true
                 }
             }
         }
     }
-
-    ipconfig0 = "ip=192.168.0.80/24,gw=192.168.0.1"
-    ciuser = "ubuntu"
+     
+    ciuser = "usr"
+    cipassword = "123"
+    ipconfig0 = "ip=192.168.0.10${count.index + 1}/24,gw=192.168.0.1"
     sshkeys = <<EOF
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDHZlTW1LaL/LBUCumOaPtnh4cuPe72VXJywnPO9PAp3v/kM0X1Hal3/I+bgVd5CbSlKyUylBC9RXHUXx0aZuloI0nsD+JJsPioWPe1k7TBbRXOd/IVWzaQ6hd0rdjs8PMYVRKVsWUs9TLH1Eicnp7tuwBWsbOrAV+3tqsZXrP0oYUWoeIknSy0dXP7UWZ5X96WjtF/zrjR6tb0SemtYn5E+zKPIVPFiHTkw5WD/CeYL/g1/97GFKqfidBqwRAW1Dxy7u6szkC122qERkiIuNlh4XqLJ+wEh/YlBTg+ZukGotBoR6RFjGkATkr4ad509qHOrafSfUaenLSSSvwGFv9haHhvpGe8ycLwwPIABPRWhLbBQ+UWYffjeEoOaSqxTtuxTy8jEvFJXGdZRA2njpNzewM6g/K8N2kmf7SkWCyDBemAa/EWuiiepO8kL5Syidp/VpFDanOQXIs4bCxTKMTjfWLiyLr1xMg1S9n/aSAaRyQcKff47D+RNm7aSwMBUv8= ded@ded
+    ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCjUkRF+68kpg+hMkRsIxfgyHwu6MZeo9ddZ99o5pSYPAcvzMiYkuN7zLIloFEPOLbHTYw9PhVfaHtNtdIWwr2XLvgAzdy3jcdVdBQ9yYaDyNkrXd7c0YyvWQzAWLy8J3E9nG1l9cgTVHdsLw5J5MAbZKERDIriVAytOWscj4SsRwxtcHH1+HqF4XMIa4lmwtTES/2WUVPVBt1Vaf14Gdr5IJOuLpDeW/qQGbTmVgXDJzcEU1oYsmtW2LBdIZo436JlXKEsyyWFZW9i8TtuDCkuhFDKts2AKipQbz4JhOOsELKxbyWUGY2VBWuqEJThKQ5GyNuVd0JXZ2KD2UCaWjiwTsLxecely54NaWULZDT/YOIoXHVbYJomK8f40tvBj4Z7JKZBllniuwBoIBdobMkppcr0/QiM5ipRUSc8s83Km3xJ/0dKM2kkbyza7ofEGR3OsOFpDb/iT1xg9CEOY9McMsJmM51PnyqMX/fqvxZdDZeIZqKNN6wKf/2GuJl6XXM= usr@local 
     EOF
 }
+
+
