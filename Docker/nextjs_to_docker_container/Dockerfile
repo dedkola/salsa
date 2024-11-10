@@ -1,13 +1,9 @@
 FROM node:20-bullseye
-ARG CACHEBUST=1
-RUN echo "Cache Bust: $CACHEBUST"
 WORKDIR /app
 RUN apt update && apt install git
-
 RUN apt update && apt install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN rm -rf /app/* && if [ ! -d "/app/.git" ]; then git clone https://github.com/dedkola/nextjs-docs.git /app; else cd /app && git pull; fi
-
 
 RUN npm install
 RUN npm run build
