@@ -1,5 +1,6 @@
 FROM node:20-bullseye
-
+ARG CACHEBUST=1
+RUN echo "Cache Bust: $CACHEBUST"
 WORKDIR /app
 RUN apt update && apt install git
 
@@ -12,3 +13,5 @@ RUN npm install
 RUN npm run build
 EXPOSE 3000
 CMD ["npm", "start"]
+
+
