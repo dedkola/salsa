@@ -1,8 +1,11 @@
-version: "3"
+version: "3.8"
 
 services:
-  nextra-docs:
-    build: .
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
     ports:
       - "5000:3000"
     environment:
