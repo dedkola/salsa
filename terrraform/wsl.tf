@@ -13,6 +13,11 @@ resource "null_resource" "import_wsl_1" {
   provisioner "local-exec" {
     command = "wsl --import U1 E:\\WSL\\U1 E:\\WSL\\ubuntu-backup.tar"
   }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "wsl --unregister U1"
+  }
 }
 
 resource "null_resource" "import_wsl_2" {
@@ -20,5 +25,11 @@ resource "null_resource" "import_wsl_2" {
 
   provisioner "local-exec" {
     command = "wsl --import U2 E:\\WSL\\U2 E:\\WSL\\ubuntu-backup.tar"
+  }
+
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "wsl --unregister U2"
   }
 }
