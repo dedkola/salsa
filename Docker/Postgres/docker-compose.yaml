@@ -5,8 +5,8 @@ services:
     restart: always
     environment:
       POSTGRES_USER: usr
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: db-1
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: db1
 
 
   adminer:
