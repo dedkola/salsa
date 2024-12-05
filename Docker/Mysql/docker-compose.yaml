@@ -1,0 +1,21 @@
+services:
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: db1
+      MYSQL_USER: usr
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - 3306:3306
+    volumes:
+    - ./my.cnf:/etc/mysql/my.cnf  # Custom configuration file
+    - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Initialization script  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8082:8080
