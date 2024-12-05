@@ -6,15 +6,15 @@ services:
     ports:
       - "9090:9090" 
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Configuration file
-      - prometheus-data:/prometheus  # Persistent storage for metrics data
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  
+      - prometheus-data:/prometheus  
     networks:
-      - monitoring  # Custom network for LAN access
+      - monitoring 
 
 volumes:
   prometheus-data:
-    driver: local  # Persistent volume for Prometheus data
+    driver: local  
 
 networks:
   monitoring:
-    driver: bridge  # Bridge network for LAN communication
+    driver: bridge  
