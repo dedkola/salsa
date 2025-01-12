@@ -1,0 +1,41 @@
+services:
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: db1
+      MYSQL_USER: usr
+      MYSQL_PASSWORD: 123
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/my.cnf
+      - ./db.sql:/docker-entrypoint-initdb.d/db.sql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 90:8080
+
+  wordpress:
+    image: wordpress:latest
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_NAME: db1
+      WORDPRESS_DB_USER: usr
+      WORDPRESS_DB_PASSWORD: 123
+    ports:
+      - 80:80
+    volumes:
+      - ./wordpress_data:/var/www/html
+
+volumes:
+  wordpress_data:
+    driver: local
+  mysql_data:
+    driver: local
