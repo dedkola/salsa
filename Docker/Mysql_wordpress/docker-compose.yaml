@@ -11,7 +11,7 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./mysql_data:/var/lib/mysql
+      - /mnt/app/mysql/mysql_data:/var/lib/mysql
       - ./my.cnf:/etc/mysql/my.cnf
       - ./db.sql:/docker-entrypoint-initdb.d/db.sql
 
@@ -19,7 +19,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 90:8080
+      - 8181:8080
 
   wordpress:
     image: wordpress:latest
@@ -30,12 +30,6 @@ services:
       WORDPRESS_DB_USER: usr
       WORDPRESS_DB_PASSWORD: 123
     ports:
-      - 80:80
+      - 8282:80
     volumes:
-      - ./wordpress_data:/var/www/html
-
-volumes:
-  wordpress_data:
-    driver: local
-  mysql_data:
-    driver: local
+      - /mnt/app/wordpress:/var/www/html
