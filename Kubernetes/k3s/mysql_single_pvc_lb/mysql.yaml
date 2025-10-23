@@ -23,11 +23,11 @@ spec:
             - containerPort: 3306
           resources:
             requests:
-              memory: "4Gi"
-              cpu: "2"
+              memory: "2Gi"
+              cpu: "1"
             limits:
-              memory: "8Gi"
-              cpu: "4"
+              memory: "3Gi"
+              cpu: "2"
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: mysql-data
@@ -53,3 +53,30 @@ spec:
   ports:
     - port: 3306
       targetPort: 3306
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+data:
+  my.cnf: |
+    [mysqld]
+    innodb_flush_log_at_trx_commit=2
+    sync_binlog=0
+    bulk_insert_buffer_size=256M
+    innodb_buffer_pool_size=4G
+    innodb_log_file_size=1G
+    innodb_log_buffer_size=64M
+    innodb_redo_log_capacity = 2G
+    max_allowed_packet = 256M
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
