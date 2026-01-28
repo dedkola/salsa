@@ -88,6 +88,8 @@ docker inspect gitlab --format='{{.State.Health.Status}}'
 ```bash
 docker compose down -v
 rm -rf ssl secrets
+rm -rf ~/docker-volumes/gitlab
+rm -rf ~/docker-volumes/gitlab-runner 
 ./setup.sh
 docker compose up -d
 ```
