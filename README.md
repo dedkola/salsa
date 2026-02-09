@@ -70,7 +70,7 @@ salsa/
 ├── Unbound/                    # DNS resolver config
 │   └── conf.conf               # DNS-over-TLS to Cloudflare (1.1.1.1)
 │
-├── terrraform/                 # Terraform infrastructure-as-code
+├── terraform/                 # Terraform infrastructure-as-code
 │   ├── k3s.tf                  # Proxmox K3s cluster (3 masters + 3 workers)
 │   └── wsl.tf                  # WSL2 instance management
 │
@@ -117,7 +117,7 @@ salsa/
    kubectl apply -f Kubernetes/nginx/combined_app_and_service.yaml
 
    # Example: provision K3s cluster via Terraform
-   cd terrraform
+   cd terraform
    terraform init && terraform apply
    ```
 
