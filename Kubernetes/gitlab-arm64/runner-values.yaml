@@ -1,0 +1,62 @@
+# GitLab Runner Helm chart values
+# Usage: ./register-runner.sh (prompts for token, runs helm install)
+#
+# Docs: https://docs.gitlab.com/runner/install/kubernetes/
+
+# GitLab internal URL (same cluster)
+gitlabUrl: "https://gitlab.gitlab.svc.cluster.local"
+
+# Runner token — replaced by register-runner.sh
+runnerToken: "REPLACE_ME"
+
+# Trust our self-signed certificate
+# Key must be named <gitlabUrl-hostname>.crt inside the secret
+certsSecretName: gitlab-runner-certs
+
+# Number of concurrent jobs
+concurrent: 4
+
+# Runner pod resources
+resources:
+  requests:
+    memory: "2Gi"
+    cpu: "2000m"
+  limits:
+    memory: "4Gi"
+    cpu: "4000m"
+
+# Security
+podSecurityContext:
+  runAsUser: 100
+  fsGroup: 65533
+
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+
+# RBAC — let Helm create everything
+rbac:
+  create: true
+
+serviceAccount:
+  create: true
+  name: "gitlab-runner"
+
+# Runner executor config
+runners:
+  config: |
+    [[runners]]
+      clone_url = "https://gitlab.gitlab.svc.cluster.local"
+      environment = ["GIT_SSL_NO_VERIFY=true"]
+      [runners.kubernetes]
+        namespace = "{{.Release.Namespace}}"
+        image = "alpine:latest"
+        pull_policy = ["if-not-present"]
+        [[runners.kubernetes.host_aliases]]
+          ip = "GITLAB_CLUSTER_IP"
+          hostnames = ["gitlab.local"]
+        [[runners.kubernetes.volumes.secret]]
+          name = "gitlab-tls"
+          mount_path = "/etc/gitlab-runner/certs"
+          read_only = true

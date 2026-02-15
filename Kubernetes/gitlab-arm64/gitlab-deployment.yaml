@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitlab
+  namespace: gitlab
+  labels:
+    app.kubernetes.io/name: gitlab
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gitlab
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gitlab
+        app.kubernetes.io/component: server
+    spec:
+      hostname: gitlab-local
+      nodeSelector:
+        kubernetes.io/os: linux
+      containers:
+        - name: gitlab
+          image: gitlab/gitlab-ce:18.8.4-ce.0
+          env:
+            - name: GITLAB_OMNIBUS_CONFIG
+              value: |
+                external_url 'https://gitlab.local'
+                nginx['ssl_certificate'] = "/etc/gitlab/ssl/tls.crt"
+                nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/tls.key"
+                nginx['redirect_http_to_https'] = true
+                nginx['listen_port'] = 443
+                nginx['listen_https'] = true
+                letsencrypt['enable'] = false
+                gitlab_rails['monitoring_whitelist'] = ['0.0.0.0/0', '::/0']
+                gitlab_rails['initial_root_password'] = File.read('/etc/gitlab/initial-password/gitlab_root_password').strip
+          ports:
+            - name: https
+              containerPort: 443
+              protocol: TCP
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: ssh
+              containerPort: 22
+              protocol: TCP
+          volumeMounts:
+            - name: gitlab-config
+              mountPath: /etc/gitlab
+            - name: gitlab-logs
+              mountPath: /var/log/gitlab
+            - name: gitlab-data
+              mountPath: /var/opt/gitlab
+            - name: gitlab-tls
+              mountPath: /etc/gitlab/ssl
+              readOnly: true
+            - name: gitlab-root-password
+              mountPath: /etc/gitlab/initial-password
+              readOnly: true
+            - name: dshm
+              mountPath: /dev/shm
+          resources:
+            requests:
+              memory: "4Gi"
+              cpu: "2"
+            limits:
+              memory: "8Gi"
+              cpu: "4"
+          startupProbe:
+            httpGet:
+              path: /-/health
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 60
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 40
+          readinessProbe:
+            httpGet:
+              path: /-/readiness
+              port: 443
+              scheme: HTTPS
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /-/liveness
+              port: 443
+              scheme: HTTPS
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+      volumes:
+        - name: gitlab-config
+          persistentVolumeClaim:
+            claimName: gitlab-config
+        - name: gitlab-logs
+          persistentVolumeClaim:
+            claimName: gitlab-logs
+        - name: gitlab-data
+          persistentVolumeClaim:
+            claimName: gitlab-data
+        - name: gitlab-tls
+          secret:
+            secretName: gitlab-tls
+        - name: gitlab-root-password
+          secret:
+            secretName: gitlab-root-password
+            items:
+              - key: gitlab_root_password
+                path: gitlab_root_password
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
