@@ -20,16 +20,38 @@ spec:
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: "123"
+#Expose port 30306 on your host
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql-service
+  labels:
+    app: mysql
 spec:
+  type: NodePort
+  ports:
+    - port: 3306
+      targetPort: 3306
+      nodePort: 30306
+      protocol: TCP
+      name: mysql
   selector:
     app: mysql
-  ports:
-    - protocol: TCP
-      port: 3306
-      targetPort: 3306
-  type: LoadBalancer
+#For ClusterIP
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: mysql-service
+#  labels:
+#    app: mysql
+#spec:
+#  type: ClusterIP
+#  ports:
+#    - port: 3306
+#      targetPort: 3306
+#      protocol: TCP
+#      name: mysql
+#  selector:
+#    app: mysql
