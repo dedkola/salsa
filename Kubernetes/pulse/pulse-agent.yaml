@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: pulse-agent
+  namespace: pulse
+spec:
+  selector:
+    matchLabels:
+      app: pulse-agent
+  template:
+    metadata:
+      labels:
+        app: pulse-agent
+    spec:
+      serviceAccountName: pulse-agent
+      containers:
+        - name: pulse-agent
+          image: rcourtman/pulse:latest
+          command: ["/opt/pulse/bin/pulse-agent-linux-amd64"]
+          args:
+            - --enable-kubernetes
+          env:
+            - name: PULSE_URL
+              value: "http://pulse.pulse.svc.cluster.local:7655"
+            - name: PULSE_TOKEN
+              value: "YOUR-PULSE-TOKEN"
+            - name: PULSE_AGENT_ID
+              value: "my-k8s-cluster2"
+            - name: PULSE_ENABLE_HOST
+              value: "true"
+            - name: PULSE_KUBE_INCLUDE_ALL_PODS
+              value: "true"
+            - name: PULSE_KUBE_INCLUDE_ALL_DEPLOYMENTS
+              value: "true"
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+      tolerations:
+        - operator: Exists
