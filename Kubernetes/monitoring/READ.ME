@@ -1,0 +1,10 @@
+```bash copy
+helm install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --create-namespace \
+  -f monitoring-values.yaml
+```
+
+Full walkthrough:
+
+- [Prometheus + Grafana Setup on Kubernetes](https://doc.tkweb.site/docs/Kubernetes/k8s-monitoring-guide)
