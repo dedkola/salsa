@@ -1,0 +1,195 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[░▒▓](#d6a85f)\
+$os\
+$username\
+$hostname\
+[](bg:#b58900 fg:#d6a85f)\
+$directory\
+[](fg:#b58900 bg:#3a2f1f)\
+$git_branch\
+$git_status\
+$git_state\
+$git_metrics\
+[](fg:#3a2f1f bg:#2a241b)\
+$nodejs\
+$python\
+$bun\
+$deno\
+$rust\
+$golang\
+$php\
+$package\
+$docker_context\
+[](fg:#2a241b bg:#1f1b16)\
+$time\
+[ ](fg:#1f1b16)\
+\n$shell$character"""
+
+right_format = """$cmd_duration$jobs$status$battery"""
+
+# 🔸 OS + user
+[os]
+disabled = false
+style = "bg:#d6a85f fg:#1f1b16"
+format = "[ $symbol]($style)"
+
+[os.symbols]
+Macos = "󰀵"
+Linux = "󰌽"
+Ubuntu = "󰕈"
+Arch = "󰣇"
+Windows = ""
+Unknown = ""
+
+[username]
+show_always = true
+style_user = "bg:#d6a85f fg:#1f1b16"
+style_root = "bg:#d6a85f fg:#7f1d1d"
+format = "[ $user]($style)"
+
+# 🔸 Hostname (fixed styling)
+[hostname]
+ssh_only = false
+style = "bg:#d6a85f fg:#1f1b16"
+format = "[  @$hostname ]($style)"
+
+# 🔸 Directory
+[directory]
+style = "fg:#f5e6c8 bg:#b58900"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+"Code" = " "
+
+# 🔸 Git
+[git_branch]
+symbol = ""
+style = "bg:#3a2f1f"
+format = '[[ $symbol $branch ](fg:#d6a85f bg:#3a2f1f)]($style)'
+
+[git_status]
+style = "bg:#3a2f1f"
+format = '[[($all_status$ahead_behind )](fg:#d6a85f bg:#3a2f1f)]($style)'
+
+[git_state]
+style = "bg:#3a2f1f"
+format = '[[ $state( $progress_current/$progress_total) ](fg:#f5e6c8 bg:#3a2f1f)]($style)'
+
+[git_metrics]
+disabled = false
+added_style = "fg:#b8d68c bg:#3a2f1f"
+deleted_style = "fg:#d68c8c bg:#3a2f1f"
+format = '([+$added]($added_style) )([-$deleted]($deleted_style) )'
+
+# 🔸 Languages
+[nodejs]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[python]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($version)( $virtualenv) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[bun]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[deno]
+symbol = "🦕"
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[rust]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[golang]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[php]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#d6a85f bg:#2a241b)]($style)'
+
+[package]
+symbol = "󰏗"
+style = "bg:#2a241b"
+format = '[[ $symbol ($version) ](fg:#f5e6c8 bg:#2a241b)]($style)'
+
+[docker_context]
+symbol = ""
+style = "bg:#2a241b"
+format = '[[ $symbol ($context) ](fg:#8cc7d6 bg:#2a241b)]($style)'
+
+# 🔸 Time
+[time]
+disabled = false
+time_format = "%R"
+style = "bg:#1f1b16"
+format = '[[  $time ](fg:#f5e6c8 bg:#1f1b16)]($style)'
+
+# 🔸 Right prompt: duration, jobs, errors, battery
+[cmd_duration]
+min_time = 1000
+style = "fg:#d6a85f bg:#1f1b16"
+format = '[ 󱦟 $duration ]($style)'
+
+[jobs]
+symbol = ""
+style = "fg:#d6a85f bg:#1f1b16"
+format = '[ $symbol $number ]($style)'
+
+[status]
+disabled = false
+map_symbol = true
+style = "fg:#d68c8c bg:#1f1b16"
+format = '[ $symbol$status ]($style)'
+
+[battery]
+full_symbol = "󰁹"
+charging_symbol = "󰂄"
+discharging_symbol = "󰁹"
+unknown_symbol = "󰂑"
+empty_symbol = "󰂎"
+format = '[ $symbol $percentage ]($style)'
+
+[[battery.display]]
+threshold = 20
+style = "fg:#d68c8c bg:#1f1b16"
+
+[[battery.display]]
+threshold = 100
+style = "fg:#d6a85f bg:#1f1b16"
+
+# 🔸 Second line
+[shell]
+disabled = false
+bash_indicator = "bash"
+zsh_indicator = "zsh"
+fish_indicator = "fish"
+powershell_indicator = "pwsh"
+unknown_indicator = "sh"
+style = "fg:#d6a85f"
+format = "[ $indicator ]($style)"
+
+[character]
+success_symbol = "[❯](bold fg:#d6a85f)"
+error_symbol = "[❯](bold fg:#d68c8c)"
+vimcmd_symbol = "[❮](bold fg:#b8d68c)"
+vimcmd_replace_one_symbol = "[❮](bold fg:#d6a85f)"
+vimcmd_replace_symbol = "[❮](bold fg:#d6a85f)"
+vimcmd_visual_symbol = "[❮](bold fg:#f5e6c8)"
