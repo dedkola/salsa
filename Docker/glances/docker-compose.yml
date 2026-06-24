@@ -1,0 +1,18 @@
+services:
+  glances:
+    build: .
+    container_name: glances-server
+    restart: unless-stopped
+    ports:
+      - "61208:61208"
+    environment:
+      - TZ=UTC
+      - HOST_PROC=/host/proc
+      - HOST_SYS=/host/sys
+    pid: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/etc/os-release:ro
+    privileged: false
