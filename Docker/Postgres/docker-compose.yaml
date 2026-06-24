@@ -1,0 +1,16 @@
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: usr
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: db1
+
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8081:8080

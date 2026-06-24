@@ -1,0 +1,60 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    container_name: gitlab
+    hostname: gitlab.local
+    restart: unless-stopped
+    mem_limit: 8g
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'https://gitlab.local'
+        nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.local.crt"
+        nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.local.key"
+        nginx['redirect_http_to_https'] = true
+        letsencrypt['enable'] = false
+        gitlab_rails['initial_root_password'] = File.read('/run/secrets/gitlab_root_password').strip
+    ports:
+      - "443:443"
+      - "80:80"
+      - "22:22"
+    volumes:
+      - ~/docker-volumes/gitlab/config:/etc/gitlab
+      - ~/docker-volumes/gitlab/logs:/var/log/gitlab
+      - ~/docker-volumes/gitlab/data:/var/opt/gitlab
+      - ./ssl:/etc/gitlab/ssl:ro
+    secrets:
+      - gitlab_root_password
+    networks:
+      gitlab_net:
+        aliases:
+          - gitlab.local
+    shm_size: '256m'
+    healthcheck:
+      test: ["CMD", "curl", "-sk", "https://localhost/-/readiness"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 300s
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: unless-stopped
+    mem_limit: 512m
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    volumes:
+      - ~/docker-volumes/gitlab-runner:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./ssl/gitlab.local.crt:/etc/gitlab-runner/certs/gitlab.local.crt:ro
+    networks:
+      - gitlab_net
+
+networks:
+  gitlab_net:
+    driver: bridge
+
+secrets:
+  gitlab_root_password:
+    file: ./secrets/gitlab_root_password.txt

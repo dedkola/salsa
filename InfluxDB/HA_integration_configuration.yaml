@@ -1,0 +1,11 @@
+influxdb:
+  api_version: 2
+  ssl: false
+  host: 192.168.0.5
+  port: 8086
+  token: D0JYrrtRqoWm7t3Hvuy9VG5oPLUkamXWrfln3hR1w1r7Hg-tXSUU53VLv3CJUYwzsMtTtqrhf45-VkmcQmJ7wg==
+  organization: tk
+  bucket: HA
+  default_measurement: state
+  tags:
+    source: HA

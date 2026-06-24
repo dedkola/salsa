@@ -1,0 +1,274 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: graylog
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: graylog-config
+  namespace: graylog
+data:
+  graylog.conf: |
+    password_secret=rootpassword12345
+    root_username=admin
+    root_password_sha2=9f3405cdeea498e2a08cabf50736db7205dec064bc1bc1ae05aaac37629e574e
+    http_bind_address=0.0.0.0:9000
+    mongodb_uri=mongodb://10.11.0.103:27017/graylog
+    data_dir=/usr/share/graylog/data
+    node_id_file=/usr/share/graylog/data/node-id
+    is_master=${IS_MASTER:false}  # Add this line
+
+  datanode.conf: |
+    node_id_file=/var/lib/graylog-datanode/node-id
+    password_secret=rootpassword12345
+    root_password_sha2=9f3405cdeea498e2a08cabf50736db7205dec064bc1bc1ae05aaac37629e574e
+    mongodb_uri=mongodb://10.11.0.103:27017/graylog
+    api_host=0.0.0.0
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: graylog-datanode-pvc
+  namespace: graylog
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: graylog-server-pvc
+  namespace: graylog
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: graylog-server
+  namespace: graylog
+spec:
+  serviceName: "graylog-server"
+  replicas: 2  # Adjust based on your needs
+  selector:
+    matchLabels:
+      app: graylog-server
+  template:
+    metadata:
+      labels:
+        app: graylog-server
+    spec:
+      securityContext:
+        fsGroup: 1100  # Ensure the group ownership is set
+      containers:
+        - name: graylog
+          image: graylog/graylog-enterprise:6.1
+          env:
+            - name: GRAYLOG_NODE_ID_FILE
+              value: "/usr/share/graylog/data/node-id"  # Changed path
+            - name: GRAYLOG_HTTP_BIND_ADDRESS
+              value: "0.0.0.0:9000"
+            - name: GRAYLOG_MONGODB_URI
+              value: "mongodb://10.11.0.103:27017/graylog"
+            - name: GRAYLOG_REPORT_DISABLE_SANDBOX
+              value: "true"
+            - name: GRAYLOG_PASSWORD_SECRET
+              value: "rootpassword12345"
+            - name: GRAYLOG_ROOT_PASSWORD_SHA2
+              value: "9f3405cdeea498e2a08cabf50736db7205dec064bc1bc1ae05aaac37629e574e"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: IS_MASTER
+              value: "false"  # Default to false
+            - name: GRAYLOG_IS_MASTER
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              if [ "${POD_NAME}" = "graylog-server-0" ]; then
+                export GRAYLOG_IS_MASTER=true
+              else
+                export GRAYLOG_IS_MASTER=false
+              fi
+              /docker-entrypoint.sh
+          ports:
+            - containerPort: 9000
+            - containerPort: 5044
+            - containerPort: 5140
+            - containerPort: 12201
+            - containerPort: 13301
+            - containerPort: 13302
+          volumeMounts:
+            - name: graylog-storage
+              mountPath: /usr/share/graylog/data
+            - name: graylog-config
+              mountPath: /usr/share/graylog/data/config/graylog.conf
+              subPath: graylog.conf
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 1Gi
+          securityContext:
+            runAsUser: 1100
+            runAsGroup: 1100
+      volumes:
+        - name: graylog-storage
+          persistentVolumeClaim:
+            claimName: graylog-server-pvc
+        - name: graylog-config
+          configMap:
+            name: graylog-config
+            defaultMode: 0644
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graylog-datanode
+  namespace: graylog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graylog-datanode
+  template:
+    metadata:
+      labels:
+        app: graylog-datanode
+    spec:
+      securityContext:
+        fsGroup: 1100  # Ensure the group ownership is set
+      dnsPolicy: ClusterFirst
+      containers:
+        - name: datanode
+          image: graylog/graylog-datanode:6.1
+          env:
+            - name: GRAYLOG_DATANODE_NODE_ID_FILE
+              value: "/var/lib/graylog-datanode/node-id"
+            - name: GRAYLOG_DATANODE_PASSWORD_SECRET
+              value: "rootpassword12345"
+            - name: GRAYLOG_DATANODE_ROOT_PASSWORD_SHA2
+              value: "9f3405cdeea498e2a08cabf50736db7205dec064bc1bc1ae05aaac37629e574e"
+            - name: GRAYLOG_DATANODE_MONGODB_URI
+              value: "mongodb://10.11.0.103:27017/graylog"
+            - name: GRAYLOG_DATANODE_API_HOST
+              value: "0.0.0.0"
+            - name: GRAYLOG_DATANODE_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: GRAYLOG_DATANODE_TRANSPORT_TCP_PUBLISH_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          ports:
+            - containerPort: 8999
+            - containerPort: 9200
+            - containerPort: 9300
+          volumeMounts:
+            - name: datanode-storage
+              mountPath: /var/lib/graylog-datanode
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 1Gi
+      volumes:
+        - name: datanode-storage
+          persistentVolumeClaim:
+            claimName: graylog-datanode-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: graylog-datanode
+  namespace: graylog
+spec:
+  type: ClusterIP
+  selector:
+    app: graylog-datanode
+  ports:
+    - name: api
+      port: 8999
+      targetPort: 8999
+    - name: elastic-http
+      port: 9200
+      targetPort: 9200
+    - name: elastic-tcp
+      port: 9300
+      targetPort: 9300
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: graylog-server
+  namespace: graylog
+spec:
+  type: LoadBalancer
+  selector:
+    app: graylog-server
+  ports:
+    - name: web
+      port: 9000
+      targetPort: 9000
+    - name: beats
+      port: 5044
+      targetPort: 5044
+    - name: syslog-tcp
+      port: 5140
+      targetPort: 5140
+    - name: syslog-udp
+      port: 5140
+      targetPort: 5140
+      protocol: UDP
+    - name: gelf-tcp
+      port: 12201
+      targetPort: 12201
+    - name: gelf-udp
+      port: 12201
+      targetPort: 12201
+      protocol: UDP
+    - name: forwarder-data
+      port: 13301
+      targetPort: 13301
+    - name: forwarder-config
+      port: 13302
+      targetPort: 13302
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: graylog-datanode-headless
+  namespace: graylog
+spec:
+  clusterIP: None
+  selector:
+    app: graylog-datanode
+  ports:
+    - name: api
+      port: 8999
+    - name: elastic-http
+      port: 9200
+    - name: elastic-tcp
+      port: 9300

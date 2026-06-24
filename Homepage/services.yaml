@@ -1,0 +1,83 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/services/
+
+- My First Group:
+
+    - Tower:
+        icon: unraid
+        href: http://tower
+        description: Tower
+    - Deluge:
+        icon: deluge
+        href: http://10.0.0.3:8112
+        ping: http://10.0.0.3/
+        # container: DelugeVPN
+        widgets:
+          - type: deluge
+            url: http://10.0.0.3:8112
+            password: deluge
+            enableLeechProgress: true
+            # container: delugetest 
+    - Plex:
+        icon: plex
+        href: http://192.168.0.5:32400
+        description: media
+        ping: https://192.168.0.5:32400
+        # container: 4d1e49db51a0
+        widgets:
+          - type: plex
+            url: http://192.168.0.5:32400
+            key: TbnLTc2Ji9wfJc2h618J
+            
+- My Second Group:
+    - MySpeed:
+        icon: myspeed
+        href: http://192.168.0.5:5216
+        description: MySpeed
+        widgets:
+          - type: myspeed
+            url: http://192.168.0.5:5216
+
+- My Third Group:
+    - Glances:
+        icon: glances
+        href: http://10.11.0.171:61208
+        description: Glances
+        widgets:
+          - type: glances
+            url: http://10.11.0.171:61208
+
+            version: 4 # required only if running glances v4 or higher, defaults to 3
+            metric: cpu
+            diskUnits: bytes # optional, bytes (default) or bbytes. Only applies to disk
+            refreshInterval: 5000 # optional - in milliseconds, defaults to 1000 or more, depending on the metric
+            pointsLimit: 15 # optional, defaults to 15
+    - Network Usage k3s:
+        widgets:
+          - type: glances
+            version: 4
+            url: http://10.11.0.171:61208
+            metric: network:enp114s0
+            chart: true
+    - Process k3s:
+        widgets:
+          - type: glances
+            version: 4
+            url: http://10.11.0.171:61208
+            metric: process
+            chart: true            
+- My Four Group:   
+    - Glances:
+        icon: glances
+        href: http://10.11.0.171:61208
+        description: Glances
+        widgets:
+          - type: glances
+            url: http://10.11.0.171:61208
+
+            version: 4 # required only if running glances v4 or higher, defaults to 3
+            metric: cpu
+            diskUnits: bytes # optional, bytes (default) or bbytes. Only applies to disk
+            refreshInterval: 5000 # optional - in milliseconds, defaults to 1000 or more, depending on the metric
+            pointsLimit: 15 # optional, defaults to 15      

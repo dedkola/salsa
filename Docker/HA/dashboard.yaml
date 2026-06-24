@@ -1,0 +1,220 @@
+views:
+  - title: Home
+    badges:
+      - type: entity
+        entity: sensor.system_monitor_ipv4_address_docker0
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: sensor.system_monitor_processor_use
+        color: ""
+        icon: ""
+        show_entity_picture: true
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: script.kitchen
+        color: light-blue
+        show_entity_picture: true
+        icon: mdi:food
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: script.corridor
+        color: ""
+        show_entity_picture: true
+        icon: mdi:map-marker-path
+      - type: entity
+        show_name: false
+        show_state: true
+        show_icon: true
+        entity: script.store_room
+        color: ""
+        show_entity_picture: true
+        name: store_room
+    cards:
+      - chart_type: line
+        period: 5minute
+        type: statistics-graph
+        entities:
+          - sensor.archer_ax10_download_speed
+        stat_types:
+          - mean
+          - min
+          - max
+        days_to_show: 7
+        hide_legend: false
+      - chart_type: line
+        period: 5minute
+        type: statistics-graph
+        entities:
+          - sensor.archer_ax10_upload_speed
+        stat_types:
+          - mean
+          - min
+          - max
+        days_to_show: 7
+      - show_current: true
+        show_forecast: true
+        type: weather-forecast
+        entity: weather.forecast_home
+        forecast_type: daily
+      - type: statistic
+        period:
+          calendar:
+            period: day
+        stat_type: change
+        entity: sensor.archer_ax10_data_received
+      - type: statistic
+        entity: sensor.archer_ax10_data_sent
+        period:
+          calendar:
+            period: day
+        stat_type: change
+      - chart_type: bar
+        period: day
+        type: statistics-graph
+        entities:
+          - sensor.archer_ax10_data_received
+          - sensor.archer_ax10_data_sent
+        stat_types:
+          - change
+        hide_legend: true
+        days_to_show: 7
+        logarithmic_scale: false
+      - chart_type: bar
+        period: hour
+        type: statistics-graph
+        entities:
+          - sensor.archer_ax10_data_received
+          - sensor.archer_ax10_data_sent
+        days_to_show: 1
+        stat_types:
+          - state
+          - change
+        hide_legend: false
+        logarithmic_scale: false
+      - type: entities
+        entities:
+          - vacuum.deebot
+        title: Deebot
+      - type: entities
+        entities:
+          - entity: button.deebot_relocate
+            name: Relocate
+          - entity: select.deebot_water_flow_level
+            name: Water flow level
+        title: Deebot
+      - type: entities
+        entities:
+          - entity: sensor.tp_link_router_cpu_used
+            name: CPU used
+          - entity: sensor.archer_ax10_data_received
+            name: Data received
+          - entity: sensor.archer_ax10_data_sent
+            name: Data sent
+          - entity: sensor.archer_ax10_download_speed
+            name: Download speed
+          - entity: sensor.tp_link_router_memory_used
+            name: Memory used
+          - entity: sensor.tp_link_router_total_clients
+            name: Total clients
+          - entity: sensor.tp_link_router_total_main_wifi_clients
+            name: Total main wifi clients
+          - entity: sensor.tp_link_router_total_wired_clients
+            name: Total wired clients
+          - entity: sensor.archer_ax10_upload_speed
+            name: Upload speed
+        title: TP-Link Router
+      - type: grid
+        square: false
+        columns: 1
+        cards:
+          - type: entities
+            entities:
+              - entity: sensor.deebot_area_cleaned
+                name: Area cleaned
+              - entity: sensor.deebot_cleaning_duration
+                name: Cleaning duration
+              - entity: sensor.deebot_total_area_cleaned
+                name: Total area cleaned
+              - entity: sensor.deebot_total_cleaning_duration
+                name: Total cleaning duration
+              - entity: sensor.deebot_total_cleanings
+                name: Total cleanings
+            title: Deebot
+          - type: picture
+            image_entity: image.deebot_map
+      - type: custom:vacuum-card
+        entity: vacuum.deebot
+        actions:
+          start:
+            service: vacuum.deebot
+            service_data:
+              entity_id: vacuum.deebot
+              segments:
+                - 16
+                - 20
+        stats:
+          default:
+            - attribute: filter_left
+              unit: hours
+              subtitle: Filter
+            - attribute: side_brush_left
+              unit: hours
+              subtitle: Side brush
+            - attribute: main_brush_left
+              unit: hours
+              subtitle: Main brush
+            - attribute: sensor_dirty_left
+              unit: hours
+              subtitle: Sensors
+          cleaning:
+            - entity_id: sensor.vacuum_main_brush_left
+              value_template: "{{ (value | float(0) / 3600) | round(1) }}"
+              subtitle: Main brush
+              unit: hours
+            - attribute: cleaning_time
+              unit: minutes
+              subtitle: Cleaning time
+        shortcuts:
+          - name: Clean living room
+            service: script.clean_living_room
+            icon: mdi:sofa
+          - name: Clean bedroom
+            service: script.clean_bedroom
+            icon: mdi:bed-empty
+          - name: Clean kitchen
+            service: script.kitchen
+            icon: mdi:silverware-fork-knife
+        map: image.deebot_map
+  - type: sections
+    max_columns: 4
+    title: Vacuum
+    path: vacuum
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: New section
+          - show_name: true
+            show_icon: true
+            type: button
+            tap_action:
+              action: toggle
+            entity: script.kitchen
+            icon: mdi:food
+            name: Clean kitchen
+            show_state: true
+          - show_name: true
+            show_icon: true
+            type: button
+            tap_action:
+              action: toggle
+            entity: script.corridor
+            icon: mdi:map-marker-path
+            show_state: true
+            name: Clean corridor

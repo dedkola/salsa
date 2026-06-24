@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────────────────
+# terraform.tfvars.example
+# Copy to terraform.tfvars and fill in your values
+# ─────────────────────────────────────────────────────────
+
+# Proxmox connection
+proxmox_endpoint = "https://pm.pm.com:8006"
+proxmox_api_token = "root@pam!terraform=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+proxmox_insecure = true
+proxmox_node     = "pm"
+
+# Ubuntu cloud image template (must exist in Proxmox)
+ubuntu_template_vmid = 8000
+
+# Storage
+vm_datastore       = "local-lvm"
+snippets_datastore = "local"
+
+# Network
+network_bridge = "vmbr0"
+network_prefix = "192.168.0"
+ip_offset      = 210          # server=.210, agent1=.211, agent2=.212
+cidr           = "/24"
+gateway        = "192.168.0.1"
+dns_servers    = ["1.1.1.1", "8.8.8.8"]
+dns_domain     = "local"        # Search domain for VMs — must NOT be a bare TLD like "com"
+
+# VM sizing — server
+server_cores  = 2
+server_memory = 4096   # MB
+server_disk   = 40     # GB
+
+# VM sizing — agents
+agent_cores  = 2
+agent_memory = 4096
+agent_disk   = 40
+
+# VM IDs (server=200, agent1=201, agent2=202)
+vmid_offset = 200
+
+# Access
+vm_user = "ubuntu"
+ssh_public_keys = [
+  "ssh-ed25519 AAAA... you@machine",
+]
+
+# K3s cluster token (shared secret between server and agents)
+# Generate with: openssl rand -hex 32
+k3s_token = "changeme-use-openssl-rand-hex-32"
+

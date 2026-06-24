@@ -1,0 +1,53 @@
+version: '3.6'
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:17.6.4-ce.0
+    container_name: gitlab
+    restart: always
+    hostname: 'nuc12nix'
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        external_url 'http://nuc12nix:8929'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2424
+        gitlab_rails['time_zone'] = 'UTC'
+        gitlab_rails['gitlab_shell_ssh_port'] = 2424
+        gitlab_rails['initial_root_password'] = 'wT)a2.y@YT/uww+7'
+
+    ports:
+      - '8929:8929'
+      - '1443:443'
+      - '2424:22'
+    volumes:
+      - /mnt/app/gitlab/config:/etc/gitlab
+      - /mnt/app/gitlab/logs:/var/log/gitlab
+      - /mnt/app/gitlab/data:/var/opt/gitlab
+
+    shm_size: '256m'
+
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: gitlab-runner
+    restart: always
+    depends_on:
+      - gitlab
+    environment:
+      - CI_SERVER_URL=http://nuc12nix:8929
+      - REGISTRATION_TOKEN=glrt-t1_MstaCPaibiSHgwUNjvx7
+    volumes:
+      - /mnt/app/gitlab-runner:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+
+    entrypoint: |
+      /bin/sh -c '
+      if [ ! -f /etc/gitlab-runner/config.toml ]; then
+        gitlab-runner register \
+          --non-interactive \
+          --url "http://nuc12nix:8929" \
+          --registration-token "glrt-t1_MstaCPaibiSHgwUNjvx7" \
+          --executor "docker" \
+          --docker-image alpine:latest \
+          --description "docker-runner" \
+          --run-untagged="true" \
+          --locked="false"
+      fi
+      exec gitlab-runner run --user=gitlab-runner --working-directory=/etc/gitlab-runner'

@@ -1,0 +1,7 @@
+FROM mysql:8.0
+
+# Copy custom MySQL configuration
+COPY my.cnf /etc/mysql/my.cnf
+
+# Set the database initialization script
+COPY db.sql /docker-entrypoint-initdb.d/
