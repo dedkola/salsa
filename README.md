@@ -10,7 +10,7 @@
 
 > A collection of infrastructure-as-code configs, Docker Compose stacks, Kubernetes manifests, and automation scripts for a homelab environment.
 
-**Full documentation:** [doc.tkweb.site](https://doc.tkweb.site/)
+**Full documentation:** [doc.tkweb.site](https://doc.tkweb.dev/)
 
 ---
 
@@ -121,7 +121,7 @@ salsa/
    terraform init && terraform apply
    ```
 
-3. Check the [full documentation](https://doc.tkweb.site/) for detailed guides.
+3. Check the [full documentation](https://doc.tkweb.dev/) for detailed guides.
 
 ## Contributing
 
