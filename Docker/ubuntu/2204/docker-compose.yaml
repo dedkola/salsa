@@ -1,0 +1,38 @@
+services:
+  ubuntu-server:
+    image: ubuntu:22.04
+    container_name: "2204"
+    hostname: ubuntu-server
+    restart: unless-stopped
+    environment:
+      DEBIAN_FRONTEND: noninteractive
+    command:
+      - /bin/bash
+      - -c
+      - |
+        apt-get update
+        apt-get install -y --no-install-recommends nginx openssh-server mysql-server
+
+        mkdir -p /run/sshd
+        ssh-keygen -A
+        passwd -d root
+        printf 'PermitRootLogin yes\nPasswordAuthentication yes\nPermitEmptyPasswords yes\nUsePAM no\n' > /etc/ssh/sshd_config.d/docker.conf
+
+        sed -i 's/^bind-address.*/bind-address = 0.0.0.0/' /etc/mysql/mysql.conf.d/mysqld.cnf
+        service mysql start
+        mysql --user=root <<'SQL'
+        ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '';
+        CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED WITH mysql_native_password BY '';
+        ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '';
+        GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+        FLUSH PRIVILEGES;
+        SQL
+
+        /usr/sbin/sshd
+        exec nginx -g 'daemon off;'
+    ports:
+      - "22"
+      - "80"
+      - "3306"
+    volumes:
+      - /Users/kolasokol:/mnt/mac:ro
