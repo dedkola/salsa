@@ -1,7 +1,7 @@
 # Salsa
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/kolasokol/salsa?style=flat-square)](https://github.com/kolasokol/salsa/commits/main)
-[![GitHub repo size](https://img.shields.io/github/repo-size/kolasokol/salsa?style=flat-square)](https://github.com/kolasokol/salsa)
+[![GitHub last commit](https://img.shields.io/github/last-commit/dedkola/salsa?style=flat-square)](https://github.com/dedkola/salsa/commits/main)
+[![GitHub repo size](https://img.shields.io/github/repo-size/dedkola/salsa?style=flat-square)](https://github.com/dedkola/salsa)
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white)
 ![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat-square&logo=terraform&logoColor=white)
@@ -10,7 +10,7 @@
 
 > A collection of infrastructure-as-code configs, Docker Compose stacks, Kubernetes manifests, and automation scripts for a homelab environment.
 
-**Full documentation:** [doc.tkweb.site](https://doc.tkweb.dev/)
+**Full documentation:** [doc.tkweb.dev](https://doc.tkweb.dev/)
 
 ---
 
