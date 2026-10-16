@@ -8,7 +8,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: test.tkweb.site
+    - host: test.tkweb.dev
       http:
         paths:
           - path: /
@@ -31,10 +31,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - test.tkweb.site
+        - test.tkweb.dev
   #      secretName: app-tls
   rules:
-    - host: test.tkweb.site
+    - host: test.tkweb.dev
       http:
         paths:
           - path: /
