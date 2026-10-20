@@ -1,0 +1,42 @@
+# Apple Glass — a light Warp theme inspired by the attached Launchpad prototype.
+#
+# Pearl surfaces, graphite text, and a restrained blue accent.
+# Colors are adapted for readable terminal text on a light background.
+# This file is self-contained: no background image is required.
+
+name: Apple Glass
+
+# A single blue keeps focus and selection states visually consistent.
+accent: '#0066CC'
+
+cursor: '#0066CC'
+
+# Nearly white at the top, settling into a subtle neutral pearl.
+# This is a color wash; native translucency is a separate Warp setting.
+background:
+  top: '#FDFDFE'
+  bottom: '#F5F5F7'
+
+foreground: '#1D1D1F'
+details: lighter
+
+terminal_colors:
+  normal:
+    black: '#29292D'
+    red: '#B83832'
+    green: '#247344'
+    yellow: '#895C14'
+    blue: '#005CC5'
+    magenta: '#8C4799'
+    cyan: '#166E80'
+    white: '#606068'
+
+  bright:
+    black: '#6C6C74'
+    red: '#C13E36'
+    green: '#287E4B'
+    yellow: '#956519'
+    blue: '#0066CC'
+    magenta: '#9952A5'
+    cyan: '#20798A'
+    white: '#1D1D1F'
